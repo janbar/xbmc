@@ -301,6 +301,10 @@ bool CPVRRecording::SetResumePoint(double timeInSeconds, double totalTimeInSecon
 
 CBookmark CPVRRecording::GetResumePoint() const
 {
+  CBookmark resumePoint(CVideoInfoTag::GetResumePoint());
+  if (resumePoint.IsSet())
+    return resumePoint;
+
   const CPVRClientPtr client = CServiceBroker::GetPVRManager().GetClient(m_iClientId);
   if (client && client->GetClientCapabilities().SupportsRecordingsLastPlayedPosition())
   {
@@ -309,13 +313,12 @@ CBookmark CPVRRecording::GetResumePoint() const
 
     if (pos >= 0)
     {
-      CBookmark resumePoint(CVideoInfoTag::GetResumePoint());
       resumePoint.timeInSeconds = pos;
       CPVRRecording *pThis = const_cast<CPVRRecording*>(this);
       pThis->CVideoInfoTag::SetResumePoint(resumePoint);
     }
   }
-  return CVideoInfoTag::GetResumePoint();
+  return resumePoint;
 }
 
 void CPVRRecording::UpdateMetadata(CVideoDatabase &db)
